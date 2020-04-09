@@ -1,0 +1,118 @@
+2020-04-06 19:38:08,966 ERROR: Exception on /main/search [GET] [in /home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py: 1891]
+Traceback (most recent call last):
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 421, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 416, in _make_request
+    httplib_response = conn.getresponse()
+  File "/usr/lib64/python3.6/http/client.py", line 1346, in getresponse
+    response.begin()
+  File "/usr/lib64/python3.6/http/client.py", line 307, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib64/python3.6/http/client.py", line 268, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/usr/lib64/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/elasticsearch/connection/http_urllib3.py", line 229, in perform_request
+    method, url, body, retries=Retry(False), headers=request_headers, **kw
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 720, in urlopen
+    method, url, error=e, _pool=self, _stacktrace=sys.exc_info()[2]
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/util/retry.py", line 376, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/packages/six.py", line 735, in reraise
+    raise value
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 672, in urlopen
+    chunked=chunked,
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 423, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/urllib3/connectionpool.py", line 331, in _raise_timeout
+    self, url, "Read timed out. (read timeout=%s)" % timeout_value
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask_login/utils.py", line 272, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/centvr/Documents/pyscript/microblog/app/main/routes.py", line 131, in search
+    posts,total = Post.search(exp,page,current_app.config['POSTS_PER_PAGE'])
+  File "/home/centvr/Documents/pyscript/microblog/app/models.py", line 15, in search
+    ids,total = query_index(cls.__tablename__,expression,page,per_page)
+  File "/home/centvr/Documents/pyscript/microblog/app/search.py", line 19, in query_index
+    search = current_app.elasticsearch.search(index=index,doc_type=index,body={'query':{'multi_match':{'query':query,'fields':['*']}},'from':(page - 1) * per_page,'size':per_page})
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/elasticsearch/client/utils.py", line 92, in _wrapped
+    return func(*args, params=params, headers=headers, **kwargs)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/elasticsearch/client/__init__.py", line 1627, in search
+    body=body,
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/elasticsearch/transport.py", line 362, in perform_request
+    timeout=timeout,
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/elasticsearch/connection/http_urllib3.py", line 240, in perform_request
+    raise ConnectionTimeout("TIMEOUT", str(e), e)
+elasticsearch.exceptions.ConnectionTimeout: ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
+2020-04-06 19:43:31,710 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-06 19:50:56,184 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-06 20:04:44,678 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-06 20:13:34,795 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 11:13:28,141 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 11:22:55,147 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 11:48:21,704 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 11:50:56,484 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 11:51:12,986 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 13:36:52,582 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 13:45:35,185 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 14:05:39,466 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 14:05:42,775 ERROR: Exception on /auth/login [GET] [in /home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py: 1891]
+Traceback (most recent call last):
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/centvr/Documents/pyscript/microblog/app/auth/routes.py", line 29, in login
+    return render_template('auth/login.html',title=_('Sign In'),form=form)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/centvr/Documents/pyscript/microblog/app/templates/auth/login.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/centvr/Documents/pyscript/microblog/venv/lib64/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/centvr/Documents/pyscript/microblog/app/templates/base.html", line 35, in template
+    {% endif %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endif'. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
+2020-04-07 14:08:17,453 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 14:23:44,729 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]
+2020-04-07 14:24:51,283 INFO: Microblog startup [in /home/centvr/Documents/pyscript/microblog/app/__init__.py: 68]

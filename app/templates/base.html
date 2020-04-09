@@ -1,0 +1,190 @@
+{% extends 'bootstrap/base.html' %}    
+
+{% block title %}
+{% if title %}
+    {{ title }} - {{ _('Microblog') }}
+{% else %}
+    {{ _('Welcome to Microblog') }}
+{% endif %}
+{% endblock %}
+
+{% block navbar %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+   <nav class="navbar navbar-default">
+	   <span>
+		<tr>
+	        {{ _('Microblog') }}:
+		</tr>
+		<tr>
+			<a href="{{ url_for('main.index') }}">
+				{{ _('Home') }}
+	                </a>
+		</tr>
+		<tr>
+			<a href="{{ url_for('main.explore') }}">
+				{{ _('Explore') }}
+			</a>
+		</tr>
+	   </span>
+	   <span>
+	                   {% if current_user.is_anonymous %}
+			   <tr>
+	                           <a href="{{ url_for('auth.login') }}">
+					   {{ _('Login') }}
+	                           </a>
+			   </tr>
+	                   {% else %}
+			   <tr>
+	                           <a href="{{ url_for('main.user',username=current_user.username) }}">
+		                           {{ _('Profile') }}
+	                           </a>
+			   </tr>
+			   <tr>
+	                           <a href="{{ url_for('main.logout') }}">
+		                           {{ _('Logout') }}
+	                           </a>
+			   </tr>
+			   <tr>
+                                   <a href="{{ url_for('main.messages') }}">
+		                           {{ _('Messages') }}
+		                           {% set new_messages = current_user.new_messages() %}
+		                           <span id="message_count" class="badge" style="visibility:{% if new_messages %} visible {% else %} hidden {% endif %};">{{ new_messages }}</span>
+	                           </a>
+			   </tr>
+	                   {% endif %}
+	    </span>
+     {% if g.search_form %}
+     <form class="navbar-form navbar-right" method="get" action="{{ url_for('main.search') }}">
+	      <div class="form-group">
+		      {{ g.search_form.q(size=20,class='form-control',placeholder=g.search_form.q.label.text) }}
+	      </div>
+     </form>
+     {% endif %}
+   </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+	{% if current_user.is_authenticated %}
+	{% with tasks = current_user.get_tasks_in_progress() %}
+	{% if tasks %}
+	        {% for task in tasks %}
+		<div class="alert alert-success" role="alert">
+			{{ task.description }}
+			<span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
+		</div>
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+	{% endif %}
+
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-info" role="alert">
+			{{ message }}
+		</div>
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+	{% block app_content %}
+	{% endblock %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+     {{ super() }}
+     {{ moment.include_moment() }}
+     {{ moment.lang(g.locale) }}
+     <script>
+	  function translate(sourceElem,destElem,sourceLang,destLang){
+		  $(destElem).html('<img src="{{ url_for('static',filename='loading.gif') }}">');
+		  $.post('/main/translate',{
+			  text:$(sourceElem).text(),
+			  source_language:sourceLang,
+			  dest_language:destLang
+		  }).done(function(response){
+			  $(destElem).text(response['text'])
+		  }).fail(function(){
+			  $(destElem).text("{{ _('Error:Could not contact server.') }}");
+		  });
+	  }
+     </script>
+     <script>
+          $(function(){
+	          var timer = null;
+	          var xhr = null;
+	          $(".user_popup").hover(
+		          function(event){
+			          var elem = $(event.currentTarget);
+				  function popup(){
+					  timer = null;
+		                          xhr = $.ajax('/main/user/' + elem.first().text().trim() + '/popup').done(
+						  function(data){
+							  xhr = null;
+				                          elem.popover({
+								  trigger: 'manual',
+								  html: true,
+								  animation: false,
+					                          container: elem,
+					                          content: data
+							  }).popover('show');
+				                          flask_moment_render_all();}
+		                               );
+				  }
+				  xhr = setTimeout(popup,1200);
+			  },
+			  function(event) {
+				  var elem = $(event.currentTarget);
+				  if (timer){
+					  clearTimeout(timer);
+					  timer = null;
+				  }
+				  else if (xhr){
+					  xhr.abort();
+					  xhr = null;
+				  }
+				  else {
+					  elem.popover('destroy');
+				  }
+			  }
+		     );
+	       });
+     </script>
+     <script>
+         function set_message_count(n){
+		 $("#message_count").text(n);
+		 $("#message_count").css('visibility',n ? 'visible' : 'hidden');
+	 }
+     </script>
+     <script>
+	 {% if current_user.is_authenticated %}
+         $(function(){
+		 var since = 0;
+		 setInterval(function(){
+			 $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
+				 function(notifications) {
+					 for (var i = 0;i < notifications.length;i++){
+						 switch (notifications[i].name){
+							 case 'unread_message_count':
+							         set_message_count(notifications[i].data);
+							         since = notifications[i].timestamp;
+								 break;
+							 case 'task_progress':
+								 set_task_progress(notifications[i].data.task_id,notifications[i].data.progress);
+								 break;
+						 }
+					 }
+				 }
+			 );
+		 },10000);
+	 });
+         {% endif %}
+     </script>
+     <script>
+	 function set_task_progress(task_id,progress){
+		 $("#" + task_id +"-progress").text(progress);
+	 }
+     </script>
+{% endblock %}
